@@ -26,11 +26,11 @@ app.use('/api/posts', postsRoutes)
 
 // Connect to DB
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log("Connected to DB!")
-  })
+  .then(() => console.log("Connected to DB!"))
   .catch((err) => {
-    console.log("Error occured when connecting to DB: ", err)
-  })
-
+    console.error("Cannot connect to DB!", err);
+    if (process.env.NODE_ENV === 'production') {
+      process.exit(1); // Exit with failure if unable to connect in production
+    }
+  });
 app.listen(4000, () => console.log(`Server running at port 4000`))
