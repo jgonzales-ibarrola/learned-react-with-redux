@@ -6,6 +6,8 @@ import { increment } from "./features/counter/counterSlice";
 import { useAppDispatch, useAppSelector } from "./app/hooks";
 import { useState } from "react";
 import { addTodo } from "./features/todos/todosSlice";
+// import DogLists from "./components/dog-lists";
+import PostLists from "./components/post-lists";
 
 let nextId = 1;
 
@@ -90,6 +92,13 @@ function App() {
 						);
 					})}
 				</div>
+			</div>
+
+			<div>
+
+				{/* <DogLists /> */}
+
+				<PostLists />
 			</div>
 		</>
 	);
