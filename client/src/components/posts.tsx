@@ -1,8 +1,14 @@
+import { Post } from "@/types/posts";
+
+import { useEffect, useState } from "react";
+
 import {
 	useDeletePostMutation,
 	useGetPostsQuery,
 	useUpdatePostMutation,
 } from "@/services/posts";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
+import { setFilteredPosts } from "@/features/postsSlice";
 
 import { Trash2Icon } from "lucide-react";
 
@@ -25,52 +31,84 @@ import {
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/app/hooks";
-import { setFilteredPosts } from "@/features/postsSlice";
 
 const Posts = () => {
 	const dispatch = useAppDispatch();
 	const initialState = {
+		_id: "",
 		title: "",
 		content: "",
 	};
 
 	const [open, setOpen] = useState(false);
-	const [currPost, setCurrPost] = useState(initialState);
+	const [currPost, setCurrPost] = useState<Post>(initialState);
 
-	const { data: allPosts, isFetching, refetch } = useGetPostsQuery();
+	const { data: allPosts, isLoading, refetch } = useGetPostsQuery();
 	const [deletePost] = useDeletePostMutation();
 	const [updatePost] = useUpdatePostMutation();
-	
-	const filteredPosts = useAppSelector(state => state.postsSlice.filteredPosts)
 
-	const handleDeletePost = (id: string) => {
-		deletePost(id).then(() => refetch());
+	const filteredPosts = useAppSelector(
+		(state) => state.postsSlice.filteredPosts
+	);
+
+	const handleDeletePost = async (id: string) => {
+		try {
+			dispatch(
+				setFilteredPosts(
+					filteredPosts.filter((post) => post._id !== id)
+				)
+			);
+			await deletePost(id).unwrap();
+			await refetch();
+
+		} catch (error) {
+			console.error("Failed to delete a post", error);
+
+			dispatch(
+				setFilteredPosts([
+					...filteredPosts,
+					filteredPosts.find((post) => post._id === id),
+				])
+			);
+		}
 	};
 
-	const handleEditBtn = (title: string, content: string) => {
-		setCurrPost({ title, content });
-		setOpen(!open);
+	const handleEditBtn = (_id: string, title: string, content: string) => {
+		setCurrPost({ ...currPost, _id, title, content });
+		setOpen(true);
 	};
 
-	const handleUpdatePost = async (e: React.FormEvent, id: string) => {
+	const handleUpdatePost = async (e: React.FormEvent) => {
 		e.preventDefault();
-		await updatePost({ _id: id, ...currPost })
-			.unwrap()
-			.then(() => refetch());
-		setOpen(!open);
+
+		try {
+			const updatedPosts = filteredPosts.map((post) =>
+				post._id === currPost._id ? { ...post, ...currPost } : post
+			);
+			dispatch(setFilteredPosts(updatedPosts));
+			await updatePost({
+				_id: currPost._id,
+				title: currPost.title,
+				content: currPost.content,
+			}).unwrap();
+
+			await refetch();
+
+			setOpen(false);
+		} catch (error) {
+			console.error("Failed to update a post", error);
+		}
 	};
 
 	useEffect(() => {
 		if (allPosts) {
 			dispatch(setFilteredPosts(allPosts));
 		}
-	}, [allPosts, dispatch])
-	
+	}, [allPosts, dispatch]);
+
 	return (
 		<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-			{isFetching ? (
+			{isLoading ? (
 				<p>Fetching Posts...</p>
 			) : (
 				filteredPosts?.slice(0, 10).map((post) => {
@@ -90,18 +128,18 @@ const Posts = () => {
 										<Button
 											variant="outline"
 											onClick={() =>
-												handleEditBtn(title, content)
+												handleEditBtn(
+													_id,
+													title,
+													content
+												)
 											}
 										>
 											Edit {title.slice(0, 6)}...
 										</Button>
 									</DialogTrigger>
 									<DialogContent className="sm:max-w-[425px]">
-										<form
-											onSubmit={(e) => {
-												handleUpdatePost(e, _id);
-											}}
-										>
+										<form onSubmit={handleUpdatePost}>
 											<DialogHeader>
 												<DialogTitle>
 													Edit post
