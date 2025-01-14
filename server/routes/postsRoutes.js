@@ -4,8 +4,7 @@ const {getPosts, addPost, deleteAllPosts, deletePost, getPost, updatePost} = req
 
 const router = express.Router();
 
-
-router.get('/', getPosts)
+router.get('/', getPosts);
 
 router.get('/:id', getPost);
 

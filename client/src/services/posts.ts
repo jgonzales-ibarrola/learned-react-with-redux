@@ -1,3 +1,4 @@
+import { Post } from "@/types/posts";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const postsApi = createApi({
@@ -6,15 +7,15 @@ export const postsApi = createApi({
 		baseUrl: "http://localhost:4000/api/",
 	}),
 	endpoints: (builder) => ({
-		getPosts: builder.query({
-			query: () => "posts",
+		getPosts: builder.query<Post[], void>({
+			query: () => "posts"
 		}),
     getPost: builder.query({
       query: (id) => `posts/${id}`
     }),
     addPost: builder.mutation({
 			query: (newPost) => ({
-				url: 'posts',
+				url: 'posts/create',
 				method: 'POST',
 				body: newPost,
 			})
@@ -24,7 +25,8 @@ export const postsApi = createApi({
 				url: `posts/${post.id}`,
 				method: 'PUT',
 				body: post
-			})
+			}),
+
 		}),
 		deletePost: builder.mutation({
 			query: (id) => ({
