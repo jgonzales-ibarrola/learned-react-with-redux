@@ -8,33 +8,38 @@ export const postsApi = createApi({
 	}),
 	endpoints: (builder) => ({
 		getPosts: builder.query<Post[], void>({
-			query: () => "posts"
+			query: () => "posts",
 		}),
-    getPost: builder.query({
-      query: (id) => `posts/${id}`
-    }),
-    addPost: builder.mutation({
+		getPost: builder.query({
+			query: (id) => `posts/${id}`,
+		}),
+		addPost: builder.mutation({
 			query: (newPost) => ({
-				url: 'posts/create',
-				method: 'POST',
+				url: "posts/create",
+				method: "POST",
 				body: newPost,
-			})
+			}),
 		}),
 		updatePost: builder.mutation({
 			query: (post) => ({
-				url: `posts/${post.id}`,
-				method: 'PUT',
-				body: post
+				url: `posts/${post._id}`,
+				method: "PATCH",
+				body: post,
 			}),
-
 		}),
 		deletePost: builder.mutation({
 			query: (id) => ({
 				url: `posts/${id}`,
-				method: 'DELETE',
-			})
-		})
+				method: "DELETE",
+			}),
+		}),
 	}),
 });
 
-export const { useGetPostsQuery, useGetPostQuery, useAddPostMutation, useUpdatePostMutation, useDeletePostMutation } = postsApi;
+export const {
+	useGetPostsQuery,
+	useGetPostQuery,
+	useAddPostMutation,
+	useUpdatePostMutation,
+	useDeletePostMutation,
+} = postsApi;

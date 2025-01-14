@@ -16,7 +16,7 @@ const AddPost = () => {
 
 	const titleInputRef = useRef<HTMLInputElement>(null);
 
-	const handleAddPost = async (e: React.FormEvent) => {
+	const handleAddPost = async (e: FormEvent) => {
 		e.preventDefault();
 		await addPost(newPost).then(() => {
 			setNewPost(initialState);
