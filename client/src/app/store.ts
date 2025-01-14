@@ -1,21 +1,16 @@
+import { postsApi } from "@/services/posts";
 import { configureStore } from "@reduxjs/toolkit";
 
-import counterReducer from "../features/counter/counterSlice";
-import todosReducer from "../features/todos/todosSlice";
-import { apiSlice } from "../features/dogs/dogs-api-slice";
-import { postsApiSlice } from '../features/posts/posts-api-slice'
+import postsReducer from '../features/postsSlice'
 
 export const store = configureStore({
 	reducer: {
-		counter: counterReducer,
-		todos: todosReducer,
-		[apiSlice.reducerPath]: apiSlice.reducer,
-		[postsApiSlice.reducerPath]: postsApiSlice.reducer
+		postsSlice: postsReducer,
+		[postsApi.reducerPath]: postsApi.reducer
 	},
 	middleware: (getDefaultMiddleware) => {
 		return getDefaultMiddleware()
-		.concat(apiSlice.middleware)
-		.concat(postsApiSlice.middleware);
+			.concat(postsApi.middleware)
 	},
 });
 
